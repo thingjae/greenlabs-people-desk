@@ -11,6 +11,7 @@ const FILTERS: [string, string, (c: any) => boolean, string][] = [
   ['decide', '단계 결정 필요', (c) => c.nextAction === '단계 결정', ''],
   ['taskOverdue', '과제 기한 초과', (c) => c.badges.some((b: any) => b.type === 'task_overdue'), 'red'],
   ['review', '확인 필요', (c) => c.badges.some((b: any) => b.type === 'review'), ''],
+  ['retention', '보관 기간 지남 (파기 대상)', (c) => c.badges.some((b: any) => b.type === 'retention'), 'red'],
 ];
 
 export default function Board() {

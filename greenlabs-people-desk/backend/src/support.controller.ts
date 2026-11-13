@@ -33,6 +33,16 @@ export class SupportController {
     return ingestDocument({ buf: file.buffer, docType: b.docType, title: b.title || DOC_TITLE[b.docType], revisedAt: b.revisedAt, fileName: name, uploadedBy: user.id });
   }
 
+  /** 이전 버전으로 되돌리기: 같은 종류의 다른 문서는 보관, 이 문서를 답변에 사용 */
+  @Post('documents/:id/activate')
+  @Roles('PEOPLE')
+  async activate(@Param('id') id: string) {
+    const d = await one(`SELECT * FROM documents WHERE id=$1`, [id]);
+    if (!d) throw new BadRequestException('문서를 찾을 수 없습니다');
+    await q(`UPDATE documents SET is_active=(id=$1) WHERE doc_type=$2`, [id, d.doc_type]);
+    return { ok: true };
+  }
+
   // ---------- 질문 답변 (AI-1, B15~B18) ----------
   @Post('qa/ask')
   async ask(@CurrentUser() user: AuthUser, @Body() b: { question: string }) {
@@ -102,8 +112,10 @@ JSON만 출력: {"sensitive":boolean,"grounded":boolean,"answer":string,"cited":
   }
   @Post('qa/logs/:id/resolve')
   @Roles('PEOPLE')
-  async resolve(@Param('id') id: string, @Body() b: { answer?: string }) {
-    await q(`UPDATE qa_logs SET resolved_at=now(), answer=COALESCE($1, answer) WHERE id=$2`, [b.answer || null, id]);
+  async resolve(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() b: { answer?: string }) {
+    // 이관된 질문에 피플팀이 직접 답을 남기면 질문한 직원의 '내 문의'에 보임
+    const reply = b.answer?.trim() ? `[피플팀 답변 · ${user.name}] ${b.answer.trim()}` : null;
+    await q(`UPDATE qa_logs SET resolved_at=now(), answer=COALESCE($1, answer) WHERE id=$2`, [reply, id]);
     return { ok: true };
   }
 

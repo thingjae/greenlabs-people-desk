@@ -25,7 +25,7 @@ table.slim td{font-size:15px;padding:7px 8px}
 @page{size:1280px 720px;margin:0}
 </style></head><body><section class="cover"><div class="tag">FDE 빌더 해커톤 · 고객사 20</div><h1>그린랩스 피플 데스크</h1>
 <p class="lead">메일을 뒤지지 않고 채용 진행을 보고,<br>반복 질문은 근거 문서와 함께 답합니다</p>
-<p class="by">정명재 · 2026.11.13 · 스타트업 인사팀 "그린랩스 피플팀"</p></section><section><h2>피플팀의 월요일 아침</h2>
+<p class="by">정명재 · 2026.11.13 · 스타트업 인사팀 "그린랩스 피플팀" · greenlabs-people-desk.vercel.app</p></section><section><h2>피플팀의 월요일 아침</h2>
 <div class="two"><div><p class="quote">"백엔드 지원서 70통을 스프레드시트에 옮기고, 면접관 세 명과 메일을 열 번 주고받다가…<br>슬랙 질문에 답하느라 면접 확정 메일을 잊어버립니다."</p>
 <p class="small">직원 90명 · 피플팀 3명 · 6개 포지션 동시 채용 · 직원 질문 하루 20건</p></div>
 <div><h3>인터뷰로 찾은 진짜 문제</h3><ol>
@@ -79,7 +79,7 @@ table.slim td{font-size:15px;padding:7px 8px}
 <tr><td>AI 답변 로컬 시험 불가</td><td>키워드 대체 경로 확인 → 배포 주소에서 확인</td></tr></table></div></div></section><section class="cover end"><h2>시연 (5분)</h2><ol class="demo">
 <li>피플팀: 보드 → <b>안내 기한 초과</b> → 초안 → 발송 처리</li><li>지원서 붙여 넣기 → 중복 지원 확인 → 승인</li>
 <li>개발팀장: 담당 포지션만 · 평가 제출 전 남의 평가 잠김</li><li>직원: 재택 질문 → 피플팀이 <b>개정판 업로드</b> → 답이 바뀜 → 택시비 충돌 안내 → 민감 질문 이관</li>
-<li>통계: 병목 단계</li></ol><p class="by">다음 단계: 슬랙 연결 · 온보딩 요청 · 보관 기간 확정 후 자동 파기</p></section><div class="nav">← → 이동 · <span id="n"></span></div>
+<li>통계: 병목 단계</li></ol><p class="by">greenlabs-people-desk.vercel.app · github.com/thingjae/greenlabs-people-desk<br>다음 단계: 슬랙 연결 · 온보딩 요청 · 보관 기간 확정 후 자동 파기</p></section><div class="nav">← → 이동 · <span id="n"></span></div>
 <script>
 const s=[...document.querySelectorAll('section')];let i=0;const show=()=>{s.forEach((x,k)=>x.classList.toggle('on',k===i));document.getElementById('n').textContent=(i+1)+' / '+s.length};
 document.addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key))i=Math.min(s.length-1,i+1);if(['ArrowLeft','PageUp'].includes(e.key))i=Math.max(0,i-1);show()});

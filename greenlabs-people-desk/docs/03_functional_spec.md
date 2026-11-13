@@ -77,6 +77,10 @@
 | B17 | 검색 결과가 질문과 관련 없거나 AI가 근거를 찾지 못하면 `이관`(근거 없음). 근거 없는 답변 금지 | `QaService` |
 | B18 | 민감 질문의 `qa_logs`는 `PEOPLE`과 질문한 본인만 조회 | `QaLogsController` |
 | B19 | 통과율: 단계 k의 앞 단계 대비 = (k 이후 단계에 도달한 수) ÷ (k-1 단계에 도달한 수). 도달 = 현재 단계가 그 단계 이상이거나 `end_stage`가 그 단계 이상. 과제 없는 포지션은 과제 단계 제외. 단계 누락 행은 분모에서 제외하고 건수를 따로 표시 | `StatsService` |
+| B21 | 불합격·중도 이탈 후 보관 기간(설정값, 기본 180일)이 지난 지원자에게 `파기 대상` 배지와 오늘 할 일 집계 (채용 서류 파기 대비, 피플팀만) | `buildCards` |
+| B22 | 면접 일정 후보는 설정 화면의 면접 길이(기본 60분)로 계산 | `HiringController.commonSlots` |
+| B23 | 문서는 삭제하지 않고 보관. 피플팀은 보관된 이전 버전으로 되돌릴 수 있음(같은 종류는 1개만 사용 중) | `POST /documents/:id/activate` |
+| B24 | 이관된 질문에 피플팀이 답을 남기면 질문한 직원의 '내 문의'에 표시 | `POST /qa/logs/:id/resolve` |
 | B20 | 메일은 실제 발송하지 않음. "발송 완료 처리" 시 `sent_at` 기록, 불합격이면 `applicants.result_notified_at` 갱신 | `EmailService` |
 
 ## 4. 권한
@@ -92,7 +96,7 @@
 | 일정 확정 `POST /interviews` | ○ | 조회 | ✕ |
 | 통계 `/stats` | ○ | ✕ | ✕ |
 | 메일 `/emails`, `/templates` | ○ | ✕ | ✕ |
-| 문서 업로드 `/documents` | ○ | 조회 | 조회 |
+| 문서 업로드·되돌리기 `/documents` | ○ | 조회 | 조회 |
 | 질문하기 `POST /qa/ask` | ○ | ○ | ○ |
 | 문의함 `GET /qa/logs` | 전체 | 본인 것 | 본인 것 |
 | 설정 `/settings` | ○ | ✕ | ✕ |

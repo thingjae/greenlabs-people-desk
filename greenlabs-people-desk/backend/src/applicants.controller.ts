@@ -23,6 +23,7 @@ export async function buildCards(apps: any[], user: AuthUser) {
   ]);
   const noticeDays = await setting('result_notice_bizdays', 5);
   const evalDays = await setting('eval_due_bizdays', 2);
+  const retention = await setting('retention_days', 180);
   const t = today();
   const byEmail = new Map<string, string[]>();
   const byNamePhone = new Map<string, any[]>();
@@ -79,6 +80,12 @@ export async function buildCards(apps: any[], user: AuthUser) {
       const sus = (byNamePhone.get(a.name + '|' + digits(a.phone)) || []).filter((x) => x.id !== a.id && x.email.toLowerCase() !== a.email.toLowerCase());
       if (sus.length) badges.push({ type: 'suspect', label: '중복 의심', level: 'blue' });
       if (a.needs_review) badges.push({ type: 'review', label: '확인 필요', level: 'yellow' });
+      // 보관 기간이 지난 불합격·중도 이탈자 = 파기 대상 (채용 서류 보관 기간, 설정값)
+      if ((a.stage === '불합격' || a.stage === '중도 이탈') && a.stage_changed_at) {
+        const ended = toDate(a.stage_changed_at)!;
+        const days = Math.floor((t.getTime() - ended.getTime()) / 86400e3);
+        if (days > retention) badges.push({ type: 'retention', label: `파기 대상 (종료 후 ${days}일)`, level: 'red' });
+      }
     }
     return {
       id: a.id, positionId: a.position_id, name: a.name, source: a.source, stage: a.stage, status: a.status,
@@ -132,6 +139,7 @@ export class ApplicantsController {
       taskOverdue: count((c) => c.badges.some((b) => b.type === 'task_overdue')),
       review: count((c) => c.badges.some((b) => b.type === 'review')),
       decide: count((c) => c.nextAction === '단계 결정'),
+      retention: count((c) => c.badges.some((b) => b.type === 'retention')),
     };
     const flow = flowFor(position.has_task);
     return { positions: visible.map((p) => ({ id: p.id, name: p.name })), position, columns: [...flow, ...END, '단계 누락'], cards, summary };

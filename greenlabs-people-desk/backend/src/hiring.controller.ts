@@ -95,7 +95,7 @@ export class HiringController {
   private async commonSlots(positionId: string, stage: string) {
     const ivs = await q(`SELECT u.id, u.name FROM position_interviewers pi JOIN users u ON u.id=pi.user_id WHERE pi.position_id=$1 AND pi.stage=$2`, [positionId, SK[stage]]);
     if (ivs.length === 0) return { interviewers: [], slots: [] };
-    const minutes = (await one(`SELECT interview_minutes FROM positions WHERE id=$1`, [positionId]))?.interview_minutes || (await setting('interview_minutes', 60));
+    const minutes = await setting('interview_minutes', 60); // 설정 화면의 면접 길이
     const avail = await q(`SELECT * FROM availabilities WHERE interviewer_id = ANY($1) AND end_at > now()`, [ivs.map((i) => i.id)]);
     // 시작 후보: 각 가능 구간의 시작 시각. 모든 면접관의 구간에 [start, start+minutes]가 들어가면 후보
     const starts = [...new Set(avail.map((a) => new Date(a.start_at).getTime()))].sort();
