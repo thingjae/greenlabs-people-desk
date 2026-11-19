@@ -4,6 +4,7 @@ import { q, one } from './db';
 import { AuthUser, CurrentUser, Roles } from './auth';
 import { aiEnabled, chatJson, cosine, embed, keywordScore } from './ai';
 import { ingestDocument } from './documents';
+import { seed } from './seed';
 import { SOURCES, normalizePhone, digits, today, ymd, toDate } from './util';
 
 // ---------- 민감 질문 (B16) ----------
@@ -216,6 +217,16 @@ JSON만: {"name":string|null,"email":string|null,"phone":string|null,"source":st
     if (!e) throw new BadRequestException('메일을 찾을 수 없습니다');
     if (e.type === '불합격') await q(`UPDATE applicants SET result_notified_at=$1 WHERE id=$2`, [ymd(today()), e.applicant_id]);
     return { ok: true };
+  }
+
+  // ---------- 데모 초기화 ----------
+  /** 다음 사람이 같은 시연을 처음부터 할 수 있게 가상 데이터를 처음 상태로 되돌림 (DEMO_MODE=false면 막힘) */
+  @Post('admin/reset-demo')
+  @Roles('PEOPLE')
+  async resetDemo() {
+    if (process.env.DEMO_MODE === 'false') throw new BadRequestException('운영 모드에서는 초기화할 수 없습니다');
+    await seed(true);
+    return { ok: true, resetAt: new Date().toISOString() };
   }
 
   // ---------- 설정 ----------
