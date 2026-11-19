@@ -12,6 +12,7 @@ const LABEL: Record<string, [string, string]> = {
 export default function Settings() {
   const [vals, setVals] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState<{ t: string; m: string } | null>(null);
+  const [resetting, setResetting] = useState(false);
   useEffect(() => { api('/settings').then((r) => setVals(Object.fromEntries(r.map((x: any) => [x.key, x.value])))); }, []);
   return (
     <Shell roles={['PEOPLE']}>
@@ -26,6 +27,17 @@ export default function Settings() {
           </div>
         ))}
         <button className="primary" onClick={async () => { try { await api('/settings', { method: 'PUT', body: vals }); setMsg({ t: 'ok', m: '저장했습니다' }); } catch (e: any) { setMsg({ t: 'err', m: e.message }); } }}>저장</button>
+      </div>
+      <div className="card">
+        <h3>데모 데이터 초기화</h3>
+        <p className="small">시연이 끝나면 눌러 주세요. 지원자 400명·평가표·문서 3종(규정집은 구버전 2026-03-01)·설정값이 처음 상태로 돌아가고, 시연 중 등록한 지원자·평가·질문 기록은 지워집니다. 30초쯤 걸리며, 끝나면 다시 로그인합니다.</p>
+        <button className="danger" disabled={resetting} onClick={async () => {
+          if (!confirm('데모 데이터를 처음 상태로 되돌릴까요? 시연 중 만든 기록이 모두 지워집니다.')) return;
+          setResetting(true); setMsg(null);
+          try { await api('/admin/reset-demo', { body: {} }); setMsg({ t: 'ok', m: '초기화했습니다. 로그인 화면으로 이동합니다.' }); setTimeout(() => { localStorage.removeItem('gl_token'); localStorage.removeItem('gl_me'); window.location.href = '/login'; }, 1500); }
+          catch (e: any) { setMsg({ t: 'err', m: e.message }); }
+          setResetting(false);
+        }}>{resetting ? '초기화 중…' : '데모 데이터 초기화'}</button>
       </div>
     </Shell>
   );
