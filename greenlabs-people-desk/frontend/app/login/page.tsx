@@ -23,6 +23,7 @@ export default function Login() {
   };
   return (
     <div className="login">
+      <p className="small"><a href="/">← 소개</a> · 고객이신가요? <a href="/demo" style={{ color: 'var(--g2)', fontWeight: 700 }}>로그인 없이 체험하기</a></p>
       <h1>그린랩스 피플 데스크</h1>
       <p className="desc">시연용 계정을 고르세요. 모든 데이터는 가상입니다. (비밀번호: demo1234)</p>
       <div className="note" style={{ marginBottom: 14 }}>
