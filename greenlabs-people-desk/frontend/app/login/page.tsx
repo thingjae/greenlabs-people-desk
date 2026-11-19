@@ -25,6 +25,15 @@ export default function Login() {
     <div className="login">
       <h1>그린랩스 피플 데스크</h1>
       <p className="desc">시연용 계정을 고르세요. 모든 데이터는 가상입니다. (비밀번호: demo1234)</p>
+      <div className="note" style={{ marginBottom: 14 }}>
+        <b>처음 오셨나요? 3분 체험</b>
+        <ol style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+          <li><b>서지원(피플팀)</b>으로 들어가 왼쪽 <b>지원서 등록 대기</b> → 예시 <b>원티드 형식</b> → <b>항목 채우기</b></li>
+          <li>채워진 값을 확인하고 <b>확인했고 등록</b></li>
+          <li><b>채용 보드 → P01 백엔드 개발자 → 서류</b> 칸에서 방금 등록한 지원자 찾기</li>
+        </ol>
+        <div className="small" style={{ marginTop: 6 }}>시연을 마치면 설정 → 데모 데이터 초기화를 눌러 주세요.</div>
+      </div>
       {err && <div className="err">{err}</div>}
       {ACCOUNTS.map(([email, name, role, d]) => (
         <button key={email} onClick={() => go(email)}>
