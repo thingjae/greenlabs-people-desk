@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { clearSession, getMe, Me } from '@/lib/api';
+import DemoBar from '@/components/DemoBar';
 
 const MENU: Record<string, [string, string][]> = {
   PEOPLE: [['/board', '채용 보드'], ['/intake', '지원서 등록 대기'], ['/schedule', '면접 일정'], ['/stats', '통계'], ['/emails', '메일'], ['/ask', '규정 질문'], ['/inbox', '문의함'], ['/documents', '문서 관리'], ['/settings', '설정']],
@@ -16,7 +17,7 @@ export default function Shell({ children, roles }: { children: React.ReactNode; 
   const router = useRouter();
   useEffect(() => {
     const m = getMe();
-    if (!m) { router.replace('/login'); return; }
+    if (!m) { router.replace('/demo'); return; }
     if (roles && !roles.includes(m.role)) { router.replace(MENU[m.role][0][0]); return; }
     setMe(m);
   }, [path]);
@@ -32,10 +33,10 @@ export default function Shell({ children, roles }: { children: React.ReactNode; 
         <div className="me">
           <div><b>{me.name}</b> · {ROLE[me.role]}</div>
           <div>{me.title}{me.employmentType ? ` · ${me.employmentType}` : ''}</div>
-          <button style={{ marginTop: 8, width: '100%' }} onClick={() => { clearSession(); router.replace('/login'); }}>로그아웃 · 계정 바꾸기</button>
+          <button style={{ marginTop: 8, width: '100%' }} onClick={() => { clearSession(); try { localStorage.removeItem('gl_demo'); } catch {} router.replace('/'); }}>로그아웃</button>
         </div>
       </nav>
-      <main className="main">{children}</main>
+      <main className="main"><DemoBar />{children}</main>
     </div>
   );
 }
