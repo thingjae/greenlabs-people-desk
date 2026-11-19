@@ -222,8 +222,7 @@ JSON만: {"name":string|null,"email":string|null,"phone":string|null,"source":st
   // ---------- 데모 초기화 ----------
   /** 다음 사람이 같은 시연을 처음부터 할 수 있게 가상 데이터를 처음 상태로 되돌림 (DEMO_MODE=false면 막힘) */
   @Post('admin/reset-demo')
-  @Roles('PEOPLE')
-  async resetDemo() {
+  async resetDemo() { // 체험 모드에서는 역할과 관계없이 누구나 "처음부터 다시"를 쓸 수 있음
     if (process.env.DEMO_MODE === 'false') throw new BadRequestException('운영 모드에서는 초기화할 수 없습니다');
     await seed(true);
     return { ok: true, resetAt: new Date().toISOString() };

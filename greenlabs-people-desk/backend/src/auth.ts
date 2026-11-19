@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
   constructor(private jwt: JwtService, private reflector: Reflector) {}
   async canActivate(ctx: ExecutionContext) {
     const req = ctx.switchToHttp().getRequest();
-    if (req.path?.startsWith('/auth/login') || req.path === '/health') return true;
+    if (req.path?.startsWith('/auth/login') || req.path?.startsWith('/auth/demo') || req.path === '/health') return true;
     const h = req.headers.authorization || '';
     const token = h.startsWith('Bearer ') ? h.slice(7) : null;
     if (!token) throw new UnauthorizedException('로그인이 필요합니다');
@@ -60,6 +60,18 @@ export class AuthController {
     const payload: AuthUser = { id: u.id, role: u.role, name: u.name, employmentType: u.employment_type };
     return { token: await this.jwt.signAsync(payload, { secret: process.env.JWT_SECRET, expiresIn: '12h' }), user: { ...payload, title: u.title } };
   }
+  /** 체험용 입장: 비밀번호 없이 역할만 고르면 가상 계정으로 들어감 (DEMO_MODE=false면 막힘) */
+  @Post('demo')
+  async demo(@Body() b: { role: Role }) {
+    if (process.env.DEMO_MODE === 'false') throw new UnauthorizedException('체험 입장이 꺼져 있습니다');
+    const email = ({ PEOPLE: 'seo@greenlabs.test', INTERVIEWER: 'park@greenlabs.test', EMPLOYEE: 'emp1@greenlabs.test' } as Record<string, string>)[b.role];
+    if (!email) throw new UnauthorizedException('역할을 골라 주세요');
+    const u = await one(`SELECT * FROM users WHERE email=$1`, [email]);
+    if (!u) throw new UnauthorizedException('체험 데이터가 준비되지 않았습니다');
+    const payload: AuthUser = { id: u.id, role: u.role, name: u.name, employmentType: u.employment_type };
+    return { token: await this.jwt.signAsync(payload, { secret: process.env.JWT_SECRET, expiresIn: '6h' }), user: { ...payload, title: u.title } };
+  }
+
   @Get('me')
   async me(@CurrentUser() user: AuthUser) {
     const u = await one(`SELECT id,name,email,role,employment_type,title FROM users WHERE id=$1`, [user.id]);
