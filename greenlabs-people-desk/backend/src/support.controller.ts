@@ -89,7 +89,12 @@ export class SupportController {
 6. 답은 2~4문장, 존댓말, 금액·일수는 숫자로.
 JSON만 출력: {"sensitive":boolean,"grounded":boolean,"answer":string,"cited":["C1",...],"conflict":null 또는 {"topic":string,"chosen_doc":string,"chosen_value":string,"other_doc":string,"other_value":string},"applies_to":string 또는 null}`;
     const r = await chatJson(system, `질문: ${question}\n\n${context}`);
-    if (!r) return save({ status: '이관', escalationReason: '근거 없음', answer: null, message: '지금은 답변을 만들 수 없어 피플팀에 전달했습니다.' });
+    if (!r) {
+      // AI 호출 실패(키 만료·한도 초과 등): 지어내지 않고 검색된 근거 원문만 보여 주고, 근거가 약하면 피플팀으로
+      const top = ctx[0];
+      if (!top || top.score < 0.3) return save({ status: '이관', escalationReason: '근거 없음', answer: null, message: '지금은 답변을 만들 수 없어 피플팀에 전달했습니다.' });
+      return save({ status: '답변', answer: '지금은 AI 답변을 만들 수 없어, 질문과 가장 가까운 규정 원문을 보여 드립니다. 아래 근거를 확인해 주세요.', citations: ctx.slice(0, 2).map(cite), conflict: null, mode: 'keyword' });
+    }
     if (r.sensitive) return save({ status: '이관', escalationReason: '민감', sensitive: true, answer: null, message: '개인 사정이 포함된 질문은 피플팀이 직접 비공개로 답드립니다. 피플팀에 전달했습니다.' });
     const cited = (r.cited || []).map((s: string) => ctx[Number(String(s).replace(/\D/g, '')) - 1]).filter(Boolean);
     if (!r.grounded || cited.length === 0) return save({ status: '이관', escalationReason: '근거 없음', answer: null, message: '문서에서 근거를 찾지 못해 피플팀에 전달했습니다. 피플팀이 확인 후 답드립니다.' });
